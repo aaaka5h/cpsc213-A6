@@ -1,42 +1,38 @@
 .pos 0x100 
- L0:            ld $a, r2                 # r2 = &a
+                ld $a, r2                 # r2 = &a
                 ld $b, r3                 # r3 = &b
                 ld $0, r0                 # r0 = i' = 0
                 ld $n, r1                 # r1 = &n
                 ld (r1), r1               # r1 = n
                 not r1                    # r1 = ~n
                 inc r1                    # r1 = -n
-                add r0, r1                # r1 = i' - n
-                beq r1, end               # goto end if (i<n)
-                bgt r1, end               # goto end if (i<n)
-                ld (r2, r0, 4), r2        # r2 = a[i']
-                ld (r3, r0, 4), r3        # r3 = b[i']
-                
-                
-L1:             
+                ld $c, r4                 # r4 = &c
+                ld (r4), r4               # r4 = c'
 
+L0:             
+                mov r0, r7                # r7 = i'
+                add r1, r7                # r7 = i' - n
+                beq r7, end               # goto end if (i=n)
+                bgt r7, end               # goto end if (i>n)
+                ld (r2, r0, 4), r5        # r5 = a[i']
+                ld (r3, r0, 4), r6        # r6 = b[i']
+                not r5                    # r3 = ~a[i']
+                inc r5                    # r3 = -a[i']
 
-end:
+L1:             add r5, r6                # r3 = b[i'] - a[i']
+                beq r6, L2                # goto L2 if (a[i] = b[i'])
+                bgt r6, L2                # goto L2 if (a[i'] < b[i'])   
+                inc r4                    # c' = c' + 1
 
+L2:             inc r0                    # i' = i' + 1
+                br L0                     # goto L0
 
+end:            ld $i, r1                 # r0 = &i
+                st r0, (r1)               # i = i'
+                ld $c, r2                 # r2 = &c
+                st r4, (r2)               # c = c'
 
-
-.pos 0x100
-                 ld   $0x0, r0            # r0 = temp_i = 0
-                 ld   $a, r1              # r1 = address of a[0]
-                 ld   $0x0, r2            # r2 = temp_s = 0
-                 ld   $0xfffffff6, r4     # r4 = -10
-loop:            mov  r0, r5              # r5 = temp_i
-                 add  r4, r5              # r5 = temp_i-10
-                 beq  r5, end_loop        # if temp_i=10 goto +4
-                 ld   (r1, r0, 4), r3     # r3 = a[temp_i]
-                 add  r3, r2              # temp_s += a[temp_i]
-                 inc  r0                  # temp_i++
-                 br   loop                # goto -7
-end_loop:        ld   $s, r1              # r1 = address of s
-                 st   r2, 0x0(r1)         # s = temp_s
-                 st   r0, 0x4(r1)         # i = temp_i
-                 halt                     
+                halt                     
 .pos 0x1000
 i:               .long 0xffffffff         # i = -1
 n:               .long 0x00000005         # n = 5
