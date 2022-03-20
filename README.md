@@ -8,6 +8,6 @@
 - Translating Assembly code with multiple loops into C
 
 ### Median Student Calculator ###
-- Writing a program consisting of 150+ lines of Assembly code
+- Rewriting a C program into 150+ lines of Assembly code
 - Program leveraged bubble sort to sort various students from lowest-to-highest grade and then determine the median student
 - Practiced creatively using registers
